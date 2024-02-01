@@ -8,7 +8,7 @@ The Resume Maker is a web application designed to streamline the process of crea
 
 ## Features:
 
-- **Template Selection: **Users can choose from a selection of pre-designed resume templates, offering diverse styles and layouts to suit different preferences and industries.
+- **Template Selection:** Users can choose from a selection of pre-designed resume templates, offering diverse styles and layouts to suit different preferences and industries.
 - **Form Autofill:** A user-friendly form prompts users to input their personal details, educational background, work experience, skills, and other relevant information. This data is then automatically populated into the chosen template, saving time and effort.
 - **Content Editing:** Users have the flexibility to edit and customize the generated resume content, including text formatting, section reordering, and adding additional sections or details as needed.
 - **Download Options:** Once satisfied with the resume, users can conveniently download the finalized document in PDF, Word, or JPG format, ensuring compatibility with various application processes and platforms.
