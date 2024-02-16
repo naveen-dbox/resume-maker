@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resumes Collection</title>
+    <!-- Bootstrap CSS -->
+    <link href="/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css">
+    <!-- Your custom CSS -->
+    <style>
+        /* Gradient background */
+        body {
+            background-color: #fbdcb9;
+            background-image: linear-gradient(62deg, #fbdcb9 0%, #e9fff2 50%, #def5da 100%);
+        }
+        .resumes-container {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(200px, 1fr)); /* Three columns with minimum width of 200px */
+            gap: 20px;
+            padding: 20px; /* Add some padding to the resumes grid */
+        }
+
+        .resume-card {
+            position: relative; /* Make card position relative for absolute positioning */
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 0px 40px 0px 40px;
+            text-align: center;
+            background-color: #ffffff; /* White background for cards */
+            transition: box-shadow 0.3s ease; /* Smooth transition for highlighting effect */
+        }
+
+        .resume-card:hover {
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); /* Highlight effect on hover */
+        }
+        .resume-thumbnail {
+            max-width: 100%;
+            height: auto;
+        }
+        .resume-name {
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .tag {
+            display: inline-block;
+            background-color: #fab066;
+            color: black;
+            padding: 3px 8px; /* Adjusted padding */
+            border-radius: 15px; /* Adjusted border-radius */
+            margin: 3px; /* Adjusted margin */
+            font-size: 13px; /* Adjusted font size */
+        }
+
+        .headline {
+            color: rgb(0, 0, 51);
+            text-align: center;
+            font-weight: bold;
+            font-family: "Helvetica", Times, serif;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); /* Text shadow */
+            margin-top: 50px; /* Adjust as needed */
+        }
+        .pagination{
+            margin-left: 46%;
+            text-align: center;
+            background-color: transparent;
+        }
+
+        .left-arrow, .right-arrow {
+            color: #71b771;
+            font-size: 1em; /* Set the initial font size */
+            line-height: 1; /* Set the initial line height */
+        }
+        .left-arrow:hover, .right-arrow:hover {
+            font-size: 1.2em;
+        }
+        .pagination a {
+            display: inline-block; /* Ensure the clickable area matches the shape of the icon */
+        }
+        .pagination i{
+            margin: 2px;
+        }
+        .filter-container {
+            text-align: center; /* Center align filter options */
+            margin-bottom: 20px; /* Add some bottom margin */
+        }
+        .filter-tag {
+            margin-right: 5px; /* Add some space between filter tags */
+            background-color: transparent; /* Transparent background for buttons */
+            border: 1px solid black; /* Blue border for buttons */
+            color: black; /* Blue text color for buttons */
+        }
+        .filter-tag:hover {
+            background-color: #71b771; /* Light green background on hover */
+            color: white;
+        }
+        .filter-tag.active1 {
+            background-color: #71b771; /* Light green background for active buttons */
+            color: white; /* White text color for active buttons */
+        }
+/* Button styling */
+.use-button {
+    position: absolute;
+    top: 100%; /* Initially below the card */
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 8px 16px;
+    background-color: #71b771; /* Light green background on hover */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    opacity: 0; /* Initially hidden */
+    transition: opacity 0.5s ease, top 0.5s ease; /* Smooth transition for button appearing and position */
+}
+.resume-card:hover .use-button {
+    top: 50%; /* Transition button to the vertical center of the card */
+    opacity: 1; /* Show the button */
+}
+
+
+    </style>
+</head>
+<body>
+    <h1 class="headline">Discover Our Resumes Galore!</h1>
+
+    <!-- Filter options -->
+    <div class="filter-container">
+        <strong>Filter by:</strong>
+        <!-- Dummy filter tags styled as buttons -->
+        <button type="button" class="btn btn-sm filter-tag" onclick="filterResumes('', this)">All</button>
+        <button type="button" class="btn btn-sm filter-tag" onclick="filterResumes('simple', this)">Simple</button>
+        <button type="button" class="btn btn-sm filter-tag" onclick="filterResumes('modern', this)">Modern</button>
+        <button type="button" class="btn btn-sm filter-tag" onclick="filterResumes('creative', this)">Creative</button>
+        <button type="button" class="btn btn-sm filter-tag" onclick="filterResumes('professional', this)">Professional</button>
+    </div>
+
+    <!-- Resumes grid -->
+    <div class="resumes-container">
+        <% resumes.forEach(resume => { %>
+            <a href="/resume?resumeId=<%= resume._id %>" class="resume-card">
+                <!-- Decode and display thumbnail image -->
+                <img class="resume-thumbnail" src="<%= resume.thumbnail %>" alt="Resume Thumbnail"  style="height: 400px; width: 300px;">
+                <!-- Display resume name -->
+                <div class="resume-name"><%= resume.name %></div>
+                <!-- Display tags -->
+                <% resume.tags.forEach(tag => { %>
+                    <span class="tag"><%= tag %></span>
+                <% }) %>
+                <!-- Button to use this template -->
+                <button class="use-button">Use This</button>
+            </a>
+        <% }) %>
+    </div>
+<!-- Stylish Pagination -->
+<div class="pagination">
+    <h4>
+        <span> Page <%= currentPage %> of <%= totalPages %> </span> 
+
+        <div>
+            <% if (currentPage > 1) { %>
+                <a href="?page=<%= currentPage - 1 %>"><i class="bi bi-arrow-left-circle-fill left-arrow"></i></a>
+            <% } %>
+    
+            <% if (currentPage < totalPages) { %>
+                <a href="?page=<%= currentPage + 1 %>"><i class="bi bi-arrow-right-circle-fill right-arrow"></i></a>
+            <% } %>
+        </div>
+
+
+    </h4>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        let filterValue = '<%= filter %>';
+        if (filterValue) {
+            let buttons = document.querySelectorAll('.filter-tag');
+            buttons.forEach(btn => {
+                if (btn.innerText.toLowerCase() === filterValue.toLowerCase()) {
+                    btn.classList.add('active1');
+                }
+            });
+        }
+    });
+    function filterResumes(filterType, button) {
+        let buttons = document.querySelectorAll('.filter-tag');
+        buttons.forEach(btn => {
+            btn.classList.remove('active1');
+        });
+        button.classList.add('active1');
+        window.location.href = '/resumes?filter=' + filterType;
+    }
+
+</script>
+
+</body>
+</html>

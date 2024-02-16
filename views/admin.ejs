@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<!-- Coding by CodingNepal | www.codingnepalweb.com -->
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8">
+    <title> ResuMaker Dashboard </title>
+    <link rel="stylesheet" href="/stylesheets/dashboard.css">
+    <!-- Boxicons CDN Link -->
+    <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+     <!-- Custom CSS -->
+     <link href="/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+     <style>
+       .hidden{
+         display: none;
+       }
+               .loader {
+     border: 16px solid #f3f3f3; /* Light grey */
+     border-top: 16px solid #3498db; /* Blue */
+     border-radius: 50%;
+     width: 120px;
+     height: 120px;
+     animation: spin 2s linear infinite;
+     position: fixed;
+       top: 50%;
+       left: 50%;
+       transform: translate(-50%, -50%);
+       z-index: 9999; /* Ensure loader is on top of everything */
+   }
+   @keyframes spin {
+     0% { transform: rotate(0deg); }
+     100% { transform: rotate(360deg); }
+   }
+       .sidebar {
+         position: fixed;
+         top: 0;
+         bottom: 0;
+         left: 0;
+         z-index: 100;
+         padding: 48px 0 0;
+         box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.1);
+       }
+   
+       .sidebar-sticky {
+         position: relative;
+         top: 0;
+         height: calc(100vh - 48px);
+         padding-top: 0.5rem;
+         overflow-x: hidden;
+         overflow-y: auto;
+       }
+   
+       .main-content {
+         margin-left: 240px;
+         padding: 20px;
+       }
+   
+       .message {
+         background-color: #f9f9f9;
+         padding: 15px;
+         margin-bottom: 20px;
+         border-radius: 5px;
+       }
+   
+       .message h4 {
+         margin-bottom: 10px;
+       }
+   
+       .message p {
+         margin-bottom: 5px;
+       }
+   
+       .signup-form {
+         background-color: #fff;
+         padding: 20px;
+         border-radius: 5px;
+         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+       }
+   /* Styling for the message container */
+   .message {
+     background-color: #f9f9f9;
+     padding: 15px;
+     margin-bottom: 20px;
+     border-radius: 5px;
+     position: relative; /* Required for positioning the delete button */
+   }
+   
+   /* Styling for the delete button icon */
+   .deleteBtn {
+     position: absolute;
+     top: 5px;
+     right: 5px;
+     background-color: transparent;
+     border: none;
+     cursor: pointer;
+   }
+   
+   .deleteBtn i {
+     color: red; /* You can change the color as per your design */
+   }
+   
+   .deleteBtn:hover i {
+     color: darkred; /* Change color on hover if desired */
+   }
+   
+   /* Styling for the message content */
+   .message-content {
+     margin-top: 25px; /* Adjust spacing between delete button and message content */
+   }
+   .nav-link span{
+     color: red;
+   }
+   
+    .logo-details{
+        margin-left: 20px;
+    }
+    .leftbuttons,.log_out{
+      cursor: pointer;
+    }
+
+
+
+   </style>
+      </head>
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <input type="hidden" id="_csrf" value="<%= csrfToken %>">
+  <div class="sidebar">
+    <div class="logo-details">
+      <span class="logo_name">Resumaker<span style="color: red;">.</span></span> 
+    </div>
+      <ul class="nav-links">
+        <li>
+          <div class="active leftbuttons">
+            <i class='bx bx-grid-alt' ></i>
+            <span class="links_name">Add Template</span>
+          </div>
+        </li>
+        <li>
+          <div class="leftbuttons">
+            <i class='bx bx-message' ></i>
+            <span class="links_name">Messages</span>
+          </div>
+        </li>
+        <li>
+          <div class="leftbuttons">
+            <i class='bx bx-user' ></i>
+            <span class="links_name">Create New Admin</span>
+          </div>
+        </li>
+        <li>
+          <div class="leftbuttons">
+            <i class='bx bx-cog' ></i>
+            <span class="links_name">Change Password</span>
+          </div>
+        </li>
+        
+        <li class="log_out">
+          <div id="logoutBtn">
+            <i class='bx bx-log-out'></i>
+            <span class="links_name">Log out</span>
+          </div>
+        </li>
+      </ul>
+  </div>
+
+  <section class="home-section">
+    <nav>
+      <div class="sidebar-button">
+        <i class='bx bx-menu sidebarBtn'></i>
+        <span class="dashboard">Dashboard</span>
+      </div>
+
+      <div class="profile-details">
+        <span style="font-size: 18px;" class="admin_name">Hello <%= username %> &nbsp; ;)</span>
+      </div>
+    </nav>
+
+    <div class="home-content">
+
+        <div class="loader hidden"></div>
+        
+        <div class="sales-boxes">
+
+        <div id="addTemplateForm">
+          <div class="recent-sales box">
+            <div class="title">Instructions</div>
+            <p>you need to add below classes accordingly as per mentioned use case</p>
+            <ol>
+                <li>
+                    <strong>editable:</strong> the elements whose text can be edited in the resume (ex: name, phone number)
+                    
+                        <ul>* All below classes should also have editable class attached with it</ul>
+                    
+                </li>
+                <li>
+                    <strong>addable:</strong> the elements that can be added again as per user’s requirements (ex: education, skills)
+                    
+                        <ul>* <span class="addBtn">addBtn:</span> This class should be added for the main addable title, where we show an option to add 1 more element (ex: add education, add skills, etc)</ul>
+                        <ul>* <span class="addAfter">addAfter:</span> add this at the end of the addable section element, to inform addable is completed here</ul>
+                    
+                </li>
+                <li>
+                    <strong>optional:</strong> the elements that can be deleted (ex: minor degree in education)
+                </li>
+            </ol>
+            <p> <strong> Note:</strong> For all the above elements, use <code>data-field</code> attribute to give the form name for that element <br>
+             <strong>Tip:</strong>  you can use <code>&lt;section&gt;</code> tag to add these classes, <code>&lt;section&gt;</code> tag does nothing</p>
+            Check sample file for reference: <a href="/templates/sample_template.html" download>Download Sample HTML File</a>
+          </div>
+          <div class="recent-sales box" style="margin-top: 15px;margin-bottom: 15px;">
+            <div class="title">Add New Resume Template</div>
+          <!-- <h2>Add New Resume Template</h2> -->
+          <form id="new_template_id" enctype="multipart/form-data">
+            <!-- Form fields for adding a new template -->
+            <div class="form-group">
+              <label for="templateName">Template Name</label>
+              <input type="text" class="form-control" id="templateName" placeholder="Enter template name">
+            </div>
+            <div class="form-group">
+              <label for="templateTags">Template Tags</label>
+              <select multiple class="form-control" id="templateTags">
+                <option>Simple</option>
+                <option>Modern</option>
+                <option>Creative</option>
+                <option>Professional</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="thumbnailImage">Thumbnail Image</label>
+              <input type="file" class="form-control-file" id="thumbnailImage">
+            </div>
+            <div class="form-group">
+              <label for="templateCode">Template Code (HTML)</label>
+              <textarea class="form-control" id="templateCode" rows="6" placeholder="Paste HTML code for the template"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </form>
+          </div>
+        </div>
+        
+
+        <!-- Messages UI -->
+        <div id="messagesSection" style="display: none;">
+          <div class="recent-sales box">
+            <div class="title">Messages</div>
+          <!-- <h2>Messages</h2> -->
+          <% messages.forEach((message) => { %>
+            <div class="message" id="<%= message._id %>">
+              <button class="deleteBtn" data-id="<%= message._id %>">
+                <i class="bi bi-trash"></i>
+              </button>
+              <div class="message-content">
+                <p><strong>Name:</strong>  <%= message.name %></p>
+                <p><strong>Email:</strong> <%= message.email %></p>
+                <p><strong>Subject:</strong> <%= message.subject %></p>
+                <p><strong>Message:</strong>  <%= message.message %></p>
+              </div>
+            </div>
+          <% }) %>
+          </div>
+        </div>
+        
+
+        <!-- Small Signup Form -->
+        <div id="signupForm" style="display: none;" >
+          <div class="recent-sales box">
+            <div class="title">Create New Admin</div>
+          <!-- <h2>Create New Admin</h2> -->
+          <form id="signupFormId">
+            <div class="form-group">
+              <label for="adminName">Name</label>
+              <input type="text" class="form-control" id="adminName" placeholder="Enter name">
+            </div>
+            <div class="form-group">
+              <label for="adminEmail">Email address</label>
+              <input type="email" class="form-control" id="adminEmail" aria-describedby="emailHelp" placeholder="Enter email">
+            </div>
+            <div class="form-group">
+              <label for="adminPassword">Password</label>
+              <input type="password" class="form-control" id="adminPassword" placeholder="Password">
+            </div>
+            <button type="submit" class="btn btn-primary">Create Admin</button>
+          </form>
+          </div>
+        </div>
+
+        <div id="changePasswordForm" style="display: none;">
+          <div class="recent-sales box">
+            <div class="title">Change Password</div>
+          <!-- <h2>Change Password</h2> -->
+          <form id="changePasswordFormId">
+              <div class="form-group">
+                  <label for="newPassword">New Password</label>
+                  <input type="password" class="form-control" id="newPassword" placeholder="Enter new password">
+              </div>
+              <button type="submit" class="btn btn-primary">Change Password</button>
+          </form>
+          </div>
+      </div>
+      
+    </div>
+
+      <!-- <div class="sales-boxes">
+        <div class="recent-sales box">
+          <div class="title">Recent Sales</div>
+
+
+        </div>
+        <div class="top-sales box">
+          <div class="title">Top Seling Product</div>
+
+        </div>
+      </div> -->
+    </div>
+  </section>
+
+  <script>
+        function showAddTemplate() {
+      document.getElementById("addTemplateForm").style.display = "block";
+      document.getElementById("messagesSection").style.display = "none";
+      document.getElementById("changePasswordForm").style.display = "none";
+      document.getElementById("signupForm").style.display = "none";
+    }
+
+    function showMessages() {
+      document.getElementById("addTemplateForm").style.display = "none";
+      document.getElementById("messagesSection").style.display = "block";
+      document.getElementById("signupForm").style.display = "none";
+      document.getElementById("changePasswordForm").style.display = "none";
+    }
+
+    function showSignup() {
+      document.getElementById("addTemplateForm").style.display = "none";
+      document.getElementById("messagesSection").style.display = "none";
+      document.getElementById("changePasswordForm").style.display = "none";
+      document.getElementById("signupForm").style.display = "block";
+    }
+
+    function showChangePassword() {
+        document.getElementById("addTemplateForm").style.display = "none";
+        document.getElementById("messagesSection").style.display = "none";
+        document.getElementById("signupForm").style.display = "none";
+        document.getElementById("changePasswordForm").style.display = "block";
+    }
+    
+    function validateForm() {
+    var templateName = $('#templateName').val();
+    var templateTags = $('#templateTags').val();
+    var thumbnailImage = $('#thumbnailImage').val();
+    var templateCode = $('#templateCode').val();
+
+    if (templateName === '') {
+      alert('Please enter a template name.');
+      return false;
+    }
+
+    if (!templateTags || templateTags.length === 0) {
+      alert('Please select at least one template tag.');
+      return false;
+    }
+
+    if (thumbnailImage === '') {
+      alert('Please upload a thumbnail image.');
+      return false;
+    }
+
+    if (templateCode === '') {
+      alert('Please enter HTML code for the template.');
+      return false;
+    }
+
+    let parser = new DOMParser();
+    let doc = parser.parseFromString(templateCode, "text/html");
+    let errorNode = doc.querySelector('parsererror');
+    if (errorNode) {
+        console.log(errorNode)
+        alert('Please enter valid html code');
+        return false;
+    }
+
+    return true;
+  }
+    
+
+    $(document).ready(function() {
+      $(".sidebarBtn").click(function() {
+        $(".sidebar").toggleClass("active");
+        if ($(".sidebar").hasClass("active")) {
+          $(".sidebarBtn i").removeClass("bx-menu").addClass("bx-menu-alt-right");
+        } else {
+          $(".sidebarBtn i").removeClass("bx-menu-alt-right").addClass("bx-menu");
+        }
+      });
+
+        $(".leftbuttons").click(function() {
+      // Remove active class from all elements
+      $(".leftbuttons").removeClass("active");
+      // Add active class to the clicked element
+      $(this).addClass("active");
+    });
+    $(".leftbuttons:eq(0)").click(function() {
+      showAddTemplate();
+    });
+
+    // Function to handle click event for "Messages"
+    $(".leftbuttons:eq(1)").click(function() {
+      showMessages();
+    });
+
+    // Function to handle click event for "Create New Admin"
+    $(".leftbuttons:eq(2)").click(function() {
+      showSignup();
+    });
+
+    // Function to handle click event for "Change Password"
+    $(".leftbuttons:eq(3)").click(function() {
+      showChangePassword();
+    });
+    function showLoader() {
+            $('.loader').removeClass('hidden');
+        }
+
+      function hideLoader() {
+            $('.loader').addClass('hidden');
+        }
+        function minifyHtml(html_code){
+          html_code = html_code.replace(/\s+/g, ' ');
+          html_code = html_code.replace(/<\!--.*?-->/g, "");
+          html_code =html_code.replace(/>[\s]+</g, '><');
+          return html_code;
+        }
+
+      $(document).on('click', '.deleteBtn', function() {
+        var _csrf = $("#_csrf").val();
+        console.log(_csrf)
+
+        const messageid = $(this).data('id');
+        console.log(messageid);
+        $.ajax({
+            url: '/admin/delete/' + messageid,
+            type: 'DELETE',
+              headers: {
+                'X-CSRF-Token': _csrf
+              },
+            success: function(response) {
+              $('#' + messageid).remove(); 
+            },
+            error: function(xhr, status, error) {
+              alert('Failed to delete message. please try again in some time')
+            }
+        });
+      });
+      $('#signupFormId').submit(function(event) {
+        event.preventDefault();
+        
+        var adminName = $('#adminName').val();
+        var adminEmail = $('#adminEmail').val();
+        var adminPassword = $('#adminPassword').val();
+        var _csrf = $("#_csrf").val();
+        
+        $.ajax({
+            url: '/admin/signup',
+            type: 'POST',
+            data: {
+              username: adminName,
+              email: adminEmail,
+              password: adminPassword,
+              _csrf: _csrf
+            },
+            success: function(response) {
+              alert('Admin created successfully!');
+              $('#adminName').val('');
+              $('#adminEmail').val('');
+              $('#adminPassword').val('');
+            },
+            error: function(xhr, status, error) {
+              alert('Failed to create admin. Please try again later.');
+            }
+        });
+      });
+      $('#changePasswordFormId').submit(function(event) {
+        event.preventDefault();
+        var newPassword = $('#newPassword').val();
+        var _csrf = $("#_csrf").val();
+
+        $.ajax({
+            url: '/admin/change_password',
+            type: 'PUT',
+            data: {
+                password: newPassword,
+                _csrf: _csrf
+            },
+            success: function(response) {
+                alert('Password changed successfully!');
+                $('#newPassword').val('');
+            },
+            error: function(xhr, status, error) {
+                alert('Failed to change password. Please try again later.');
+            }
+        });
+    });
+      $('#new_template_id').submit(function(event){
+        console.log("submitted")
+         event.preventDefault();
+         if(validateForm()){
+            try{
+              showLoader();
+              const imageFile = $('#thumbnailImage').prop('files')[0];
+              const formData = new FormData();
+              var _csrf = $("#_csrf").val();
+              formData.append('image',imageFile);
+              formData.append('name',$('#templateName').val());
+              formData.append('tags',$('#templateTags').val());
+              formData.append('code',minifyHtml($('#templateCode').val()));
+              $.ajax({
+                  url: '/admin/upload_template',
+                  type: 'POST',
+                  data: formData,
+                  headers: {
+                    'X-CSRF-Token': _csrf
+                  },
+                  contentType: false, 
+                  processData: false,
+                  success: function(response) {
+                      alert('Uploaded template');
+                      $('#templateName').val('');
+                      $('#templateTags').val('');
+                      $('#templateCode').val('');
+                      $('#thumbnailImage').val('');
+                  },
+                  error: function(xhr, status, error) {
+                      alert('Template not upldaoed, please try again');
+                  }
+              });
+              hideLoader();
+            }catch(error){
+              console.log(error);
+              hideLoader();
+            }
+         }
+      })
+      $("#logoutBtn").click(function(){
+        $.ajax({
+            url: "/admin/logout", 
+            type: "POST", 
+            success: function(data){
+                location.reload();
+            },
+            error: function(xhr, status, error){
+                console.error(xhr.responseText);
+                location.reload();
+            }
+        });
+    });
+    });
+  </script>
+  
+</body>
+</html>

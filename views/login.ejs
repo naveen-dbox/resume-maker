@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login Page with Background Image Example</title>
+  <link rel="stylesheet" href="/stylesheets/loginstyle.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- Include jQuery -->
+  <style>
+    
+  </style>
+</head>
+<body>
+<div id="bg"></div>
+
+<form id="loginForm">
+  <input type="hidden" id="_csrf" value="<%= csrfToken %>">
+
+  <div class="form-field">
+    <input type="text" id="username" placeholder="Username" required/> 
+  </div>
+  
+  <div class="form-field">
+    <input type="password" id="password" placeholder="Password" required/>
+  </div>
+  
+  <div class="form-field">
+    <button class="btn" type="submit">Log in</button>
+  </div>
+</form>
+
+<script>
+$(document).ready(function(){
+  $('#loginForm').submit(function(event) {
+    event.preventDefault(); 
+    var username = $('#username').val(); 
+    var password = $('#password').val(); 
+    var _csrf = $("#_csrf").val();
+    $.ajax({
+      type: 'POST',
+      url: '/admin/login',
+      data: { username: username, password: password,_csrf: _csrf},
+      success: function(response) {
+        window.location.href = '/admin';
+      },
+      error: function(xhr, textStatus, errorThrown) {
+        var errorMessage = xhr.responseText;
+        alert(errorMessage);
+      }
+    });
+  });
+});
+</script>
+  
+</body>
+</html>

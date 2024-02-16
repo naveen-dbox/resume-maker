@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Custom CSS -->
+  <link href="/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    .hidden{
+      display: none;
+    }
+            .loader {
+  border: 16px solid #f3f3f3; /* Light grey */
+  border-top: 16px solid #3498db; /* Blue */
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  animation: spin 2s linear infinite;
+  position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999; /* Ensure loader is on top of everything */
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+    .sidebar {
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 100;
+      padding: 48px 0 0;
+      box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.1);
+    }
+
+    .sidebar-sticky {
+      position: relative;
+      top: 0;
+      height: calc(100vh - 48px);
+      padding-top: 0.5rem;
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+
+    .main-content {
+      margin-left: 240px;
+      padding: 20px;
+    }
+
+    .message {
+      background-color: #f9f9f9;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 5px;
+    }
+
+    .message h4 {
+      margin-bottom: 10px;
+    }
+
+    .message p {
+      margin-bottom: 5px;
+    }
+
+    .signup-form {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+/* Styling for the message container */
+.message {
+  background-color: #f9f9f9;
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 5px;
+  position: relative; /* Required for positioning the delete button */
+}
+
+/* Styling for the delete button icon */
+.deleteBtn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.deleteBtn i {
+  color: red; /* You can change the color as per your design */
+}
+
+.deleteBtn:hover i {
+  color: darkred; /* Change color on hover if desired */
+}
+
+/* Styling for the message content */
+.message-content {
+  margin-top: 25px; /* Adjust spacing between delete button and message content */
+}
+.nav-link span{
+  color: red;
+}
+
+    </style>
+</head>
+<body>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <input type="hidden" id="_csrf" value="<%= csrfToken %>">
+  <div class="container-fluid">
+    <div class="row">
+      <!-- Sidebar/Navbar Panel -->
+      <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+        <div class="sidebar-sticky">
+          <ul class="nav flex-column">
+            <li class="nav-item">
+               <h3 class="nav-link"><b>ResuMaker<span>.</span></b> </h3>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="#" onclick="showAddTemplate()">Add New Resume Template</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#" onclick="showMessages()">View Messages</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#" onclick="showSignup()">Create New Admin</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#" onclick="showChangePassword()">Update Password</a>
+          </li>
+          </ul>
+        </div>
+      </nav>
+
+      <!-- Main Content Area -->
+      <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4 main-content">
+        <!-- Add New Resume Template Form -->
+        <div class="loader hidden"></div>
+        <div id="addTemplateForm">
+          <h2>Add New Resume Template</h2>
+          <form id="new_template_id" enctype="multipart/form-data">
+            <!-- Form fields for adding a new template -->
+            <div class="form-group">
+              <label for="templateName">Template Name</label>
+              <input type="text" class="form-control" id="templateName" placeholder="Enter template name">
+            </div>
+            <div class="form-group">
+              <label for="templateTags">Template Tags</label>
+              <select multiple class="form-control" id="templateTags">
+                <option>Simple</option>
+                <option>Modern</option>
+                <option>Creative</option>
+                <option>Professional</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="thumbnailImage">Thumbnail Image</label>
+              <input type="file" class="form-control-file" id="thumbnailImage">
+            </div>
+            <div class="form-group">
+              <label for="templateCode">Template Code (HTML)</label>
+              <textarea class="form-control" id="templateCode" rows="6" placeholder="Paste HTML code for the template"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </form>
+        </div>
+        
+
+        <!-- Messages UI -->
+        <div id="messagesSection" style="display: none;">
+          <h2>Messages</h2>
+          <% messages.forEach((message) => { %>
+            <div class="message" id="<%= message._id %>">
+              <button class="deleteBtn" data-id="<%= message._id %>">
+                <i class="bi bi-trash"></i>
+              </button>
+              <div class="message-content">
+                <p><strong>Name:</strong>  <%= message.name %></p>
+                <p><strong>Email:</strong> <%= message.email %></p>
+                <p><strong>Subject:</strong> <%= message.subject %></p>
+                <p><strong>Message:</strong>  <%= message.message %></p>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+        
+        
+
+        <!-- Small Signup Form -->
+        <div id="signupForm" style="display: none;" class="signup-form">
+          <h2>Create New Admin</h2>
+          <form id="signupFormId">
+            <div class="form-group">
+              <label for="adminName">Name</label>
+              <input type="text" class="form-control" id="adminName" placeholder="Enter name">
+            </div>
+            <div class="form-group">
+              <label for="adminEmail">Email address</label>
+              <input type="email" class="form-control" id="adminEmail" aria-describedby="emailHelp" placeholder="Enter email">
+            </div>
+            <div class="form-group">
+              <label for="adminPassword">Password</label>
+              <input type="password" class="form-control" id="adminPassword" placeholder="Password">
+            </div>
+            <button type="submit" class="btn btn-primary">Create Admin</button>
+          </form>
+        </div>
+
+        <div id="changePasswordForm" style="display: none;">
+          <h2>Change Password</h2>
+          <form id="changePasswordFormId">
+              <div class="form-group">
+                  <label for="newPassword">New Password</label>
+                  <input type="password" class="form-control" id="newPassword" placeholder="Enter new password">
+              </div>
+              <button type="submit" class="btn btn-primary">Change Password</button>
+          </form>
+      </div>
+
+      </main>
+    </div>
+  </div>
+  <script>
+    
+    function showAddTemplate() {
+      document.getElementById("addTemplateForm").style.display = "block";
+      document.getElementById("messagesSection").style.display = "none";
+      document.getElementById("changePasswordForm").style.display = "none";
+      document.getElementById("signupForm").style.display = "none";
+    }
+
+    function showMessages() {
+      document.getElementById("addTemplateForm").style.display = "none";
+      document.getElementById("messagesSection").style.display = "block";
+      document.getElementById("signupForm").style.display = "none";
+      document.getElementById("changePasswordForm").style.display = "none";
+    }
+
+    function showSignup() {
+      document.getElementById("addTemplateForm").style.display = "none";
+      document.getElementById("messagesSection").style.display = "none";
+      document.getElementById("changePasswordForm").style.display = "none";
+      document.getElementById("signupForm").style.display = "block";
+    }
+
+    function showChangePassword() {
+        document.getElementById("addTemplateForm").style.display = "none";
+        document.getElementById("messagesSection").style.display = "none";
+        document.getElementById("signupForm").style.display = "none";
+        document.getElementById("changePasswordForm").style.display = "block";
+    }
+
+    function validateForm() {
+    var templateName = $('#templateName').val();
+    var templateTags = $('#templateTags').val();
+    var thumbnailImage = $('#thumbnailImage').val();
+    var templateCode = $('#templateCode').val();
+
+    if (templateName === '') {
+      alert('Please enter a template name.');
+      return false;
+    }
+
+    if (!templateTags || templateTags.length === 0) {
+      alert('Please select at least one template tag.');
+      return false;
+    }
+
+    if (thumbnailImage === '') {
+      alert('Please upload a thumbnail image.');
+      return false;
+    }
+
+    if (templateCode === '') {
+      alert('Please enter HTML code for the template.');
+      return false;
+    }
+
+    let parser = new DOMParser();
+    let doc = parser.parseFromString(templateCode, "text/html");
+    let errorNode = doc.querySelector('parsererror');
+    if (errorNode) {
+        console.log(errorNode)
+        alert('Please enter valid html code');
+        return false;
+    }
+
+    return true;
+  }
+    
+  $(document).ready(function() {
+      function showLoader() {
+            $('.loader').removeClass('hidden');
+        }
+
+      function hideLoader() {
+            $('.loader').addClass('hidden');
+        }
+        function minifyHtml(html_code){
+          html_code = html_code.replace(/\s+/g, ' ');
+          html_code = html_code.replace(/<\!--.*?-->/g, "");
+          html_code =html_code.replace(/>[\s]+</g, '><');
+          return html_code;
+        }
+
+      $(document).on('click', '.deleteBtn', function() {
+        var _csrf = $("#_csrf").val();
+        console.log(_csrf)
+
+        const messageid = $(this).data('id');
+        console.log(messageid);
+        $.ajax({
+            url: '/admin/delete/' + messageid,
+            type: 'DELETE',
+              headers: {
+                'X-CSRF-Token': _csrf
+              },
+            success: function(response) {
+              $('#' + messageid).remove(); 
+            },
+            error: function(xhr, status, error) {
+              alert('Failed to delete message. please try again in some time')
+            }
+        });
+      });
+      $('#signupFormId').submit(function(event) {
+        event.preventDefault();
+        
+        var adminName = $('#adminName').val();
+        var adminEmail = $('#adminEmail').val();
+        var adminPassword = $('#adminPassword').val();
+        var _csrf = $("#_csrf").val();
+        
+        $.ajax({
+            url: '/admin/signup',
+            type: 'POST',
+            data: {
+              username: adminName,
+              email: adminEmail,
+              password: adminPassword,
+              _csrf: _csrf
+            },
+            success: function(response) {
+              alert('Admin created successfully!');
+              $('#adminName').val('');
+              $('#adminEmail').val('');
+              $('#adminPassword').val('');
+            },
+            error: function(xhr, status, error) {
+              alert('Failed to create admin. Please try again later.');
+            }
+        });
+      });
+      $('#changePasswordFormId').submit(function(event) {
+        event.preventDefault();
+        var newPassword = $('#newPassword').val();
+        var _csrf = $("#_csrf").val();
+
+        $.ajax({
+            url: '/admin/change_password',
+            type: 'PUT',
+            data: {
+                password: newPassword,
+                _csrf: _csrf
+            },
+            success: function(response) {
+                alert('Password changed successfully!');
+                $('#newPassword').val('');
+            },
+            error: function(xhr, status, error) {
+                alert('Failed to change password. Please try again later.');
+            }
+        });
+    });
+      $('#new_template_id').submit(function(event){
+        console.log("submitted")
+         event.preventDefault();
+         if(validateForm()){
+            try{
+              showLoader();
+              const imageFile = $('#thumbnailImage').prop('files')[0];
+              const formData = new FormData();
+              var _csrf = $("#_csrf").val();
+              formData.append('image',imageFile);
+              formData.append('name',$('#templateName').val());
+              formData.append('tags',$('#templateTags').val());
+              formData.append('code',minifyHtml($('#templateCode').val()));
+              $.ajax({
+                  url: '/admin/upload_template',
+                  type: 'POST',
+                  data: formData,
+                  headers: {
+                    'X-CSRF-Token': _csrf
+                  },
+                  contentType: false, 
+                  processData: false,
+                  success: function(response) {
+                      alert('Uploaded template');
+                      $('#templateName').val('');
+                      $('#templateTags').val('');
+                      $('#templateCode').val('');
+                      $('#thumbnailImage').val('');
+                  },
+                  error: function(xhr, status, error) {
+                      alert('Template not upldaoed, please try again');
+                  }
+              });
+              hideLoader();
+            }catch(error){
+              console.log(error);
+              hideLoader();
+            }
+         }
+      })
+  });
+  </script>
+</body>
+</html>
